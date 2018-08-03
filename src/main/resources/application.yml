@@ -1,0 +1,26 @@
+spring:
+  hadoop:
+    fsUri: hdfs://192.168.18.215:8020 # 10.255.80.80:8020
+    resourceManagerHost: 192.168.18.216
+    customer:
+      security:
+        authMethod: SIMPLE # SIMPLE or KERBEROS
+        zk-principal: zookeeper/_HOST@HADOOP.COM
+        nn-principal: nn/_HOST@HADOOP.COM
+        rm-manager-principal: rm/_HOST@HADOOP.COM
+        user-zk-keytab: D:\keytab\zk.service.keytab
+        user-zk-principal: zk-hps@HADOOP.COM
+        user-hdfs-keytab: D:\keytab\hdfs.headless.keytab
+        user-hdfs-principal: hdfs-hps@HADOOP.COM
+        krb5File: D:\keytab\krb5.conf
+    config:
+      user: hdfs
+      hadoop_home_dir: E:\open source\hadoop\hadoop-2.6.5
+
+# phoenix 数据源自定义配置  
+phoenix:
+  enable: true
+  url: jdbc:phoenix:192.168.18.214,192.168.18.215,192.168.18.216:2181:/hbase # jdbc:phoenix:thin:url=http://192.168.18.214:8765;serialization=PROTOBUF
+  type: com.alibaba.druid.pool.DruidDataSource
+  driver-class-name: org.apache.phoenix.jdbc.PhoenixDriver # org.apache.phoenix.queryserver.client.Driver
+  default-auto-commit: true
