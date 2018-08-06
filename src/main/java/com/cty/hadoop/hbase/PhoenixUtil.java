@@ -1,7 +1,5 @@
 package com.cty.hadoop.hbase;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,7 +29,7 @@ public class PhoenixUtil {
 		try {
 			phoenixJdbcTemplate.execute(sql);
 		} catch (DataAccessException e) {
-			logger.error("phoenix DDL、DML sql执行发生异常，sql:" + sql, e);
+			logger.error("phoenixJdbcTemplate ddlPlusDmlSqlExcute error, sql is:" + sql, e);
 			return false;
 		}
 		return true;
@@ -49,7 +46,7 @@ public class PhoenixUtil {
 		try {
 			queryResult = phoenixJdbcTemplate.queryForList(sql);
 		} catch (DataAccessException e) {
-			logger.error("phoenix 查询 sql执行发生异常，sql:" + sql, e);
+			logger.error("phoenixJdbcTemplate querySqlExcute error, sql is:" + sql, e);
 			return null;
 		}
 		return queryResult;

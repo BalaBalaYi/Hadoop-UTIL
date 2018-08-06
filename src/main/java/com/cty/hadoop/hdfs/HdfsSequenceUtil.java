@@ -34,10 +34,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class HdfsSequenceUtil {
 
-	private final static Logger logger = LoggerFactory.getLogger(HdfsSequenceUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(HdfsSequenceUtil.class);
 	
 	@Autowired
-	@Qualifier("hdfsFS")
+	@Qualifier("simplerFS")
 	private SimplerFileSystem fs;
 	
 	/**

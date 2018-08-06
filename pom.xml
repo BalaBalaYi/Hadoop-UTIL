@@ -22,6 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<hadoop.version>2.7.3</hadoop.version>
 		<spring.hadoop.version>2.5.0.RELEASE</spring.hadoop.version>
 		<hive.version>1.2.1</hive.version>
 		<phoenix-client-hdp.version>4.7</phoenix-client-hdp.version>
@@ -46,6 +47,12 @@
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-hadoop-boot</artifactId>
 			<version>${spring.hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-archives</artifactId>
+			<version>${hadoop.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -82,6 +89,12 @@
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy</artifactId>
 			<version>2.2.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jvnet.hudson</groupId>
+			<artifactId>ganymed-ssh-2</artifactId>
+			<version>build260</version>
 		</dependency>
 		
 		<dependency>

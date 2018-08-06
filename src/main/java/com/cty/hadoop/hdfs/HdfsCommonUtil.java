@@ -2,8 +2,6 @@ package com.cty.hadoop.hdfs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.IOUtils;
@@ -22,10 +20,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class HdfsCommonUtil {
 
-	private final static Logger logger = LoggerFactory.getLogger(HdfsCommonUtil.class); 
+	private static final Logger logger = LoggerFactory.getLogger(HdfsCommonUtil.class); 
 	
 	@Autowired
-	@Qualifier("hdfsFS")
+	@Qualifier("simplerFS")
 	private SimplerFileSystem fs;
 	
 	/**
@@ -51,7 +49,7 @@ public class HdfsCommonUtil {
 			outputStream = fs.append(filePath, 4096);
 			outputStream.write(content);
 		} catch (Exception e) {
-			logger.error("写入文件发生异常！", e);
+			logger.error("SimplerFileSystem writeFileWithByte failed, filePath is:" + filePath + ",content is:" + content, e);
 			return false;
 		} finally {
 			try {
@@ -82,7 +80,7 @@ public class HdfsCommonUtil {
 				fileContent = outputStream.toByteArray();
 				return fileContent;
 			} catch (IOException e) {
-				logger.error("读取文件发生异常！", e);
+				logger.error("SimplerFileSystem readFileWithByte failed, filePath is:" + filePath, e);
 				return null;
 			} finally {
 				IOUtils.closeStream(inputStream);
@@ -113,7 +111,7 @@ public class HdfsCommonUtil {
 				
 				return fileContent.toString();
 			} catch (IOException e) {
-				logger.error("读取文件发生异常！", e);
+				logger.error("SimplerFileSystem readFileWithString failed, filePath is:" + filePath, e);
 				return null;
 			} finally {
 				IOUtils.closeStream(inputStream);
@@ -133,7 +131,7 @@ public class HdfsCommonUtil {
 		try {
 			return fs.exists(fileName);
 		} catch (Exception e) {
-			logger.error("检查文件或者目录是否存在发生异常！", e);
+			logger.error("SimplerFileSystem checkFileExist failed, fileName is:" + fileName, e);
 			return false;
 		}
 	}
@@ -148,11 +146,11 @@ public class HdfsCommonUtil {
 		if (checkFileExist(dirName))
 			return true;
 		try {
-			logger.info("创建目录：" + dirName);
+			logger.info("SimplerFileSystem mkdir：" + dirName);
 			return fs.mkdirs(dirName);
 		}
 		catch (Exception e) {
-			logger.error("创建目录发生异常！", e);
+			logger.error("SimplerFileSystem mkdir failed, dirName is:" + dirName, e);
 			return false;
 		}
 	}
@@ -166,13 +164,13 @@ public class HdfsCommonUtil {
 		try {
 			if (fs.isDirectory(dirName)) {
 				fs.delete(dirName, true);
-				logger.info("成功删除目录：" + dirName);
+				logger.info("SimplerFileSystem delete directory successed, directory is:" + dirName);
 			} else if (fs.isFile(dirName)) {
 				fs.delete(dirName, false);
-				logger.info("成功删除文件：" + dirName);
+				logger.info("SimplerFileSystem delete file successed, file is:" + dirName);
 			}
 		} catch (IOException e) {
-			logger.error("删除文件或者目录发生异常！", e);
+			logger.info("SimplerFileSystem delete failed, directory or file is:" + dirName, e);
 		}
 	}
 
@@ -186,7 +184,7 @@ public class HdfsCommonUtil {
 		try {
 			fs.rename(src, dst);
 		} catch (IOException e) {
-			logger.error("移动文件或者目录发生异常！", e);
+			logger.error("SimplerFileSystem movefile failed, source is:" + src + ",destination is:" + dst, e);
 		}
 	}
 	
@@ -201,7 +199,7 @@ public class HdfsCommonUtil {
 			fs.create(filePath, true);
 			return true;
 		} catch (Exception e) {
-			logger.error("创建一个空文件发生异常！", e);
+			logger.error("SimplerFileSystem mkfile failed, filePath is:" + filePath, e);
 			return false;
 		}
 	}
@@ -220,7 +218,7 @@ public class HdfsCommonUtil {
 			fs.copyFromLocalFile(delSrc, overwrite, localFile, hdfsPath);
 			return true;
 		} catch (IOException e) {
-			logger.info("复制本地文件到hdfs文件系统发生异常！", e);
+//			logger.error("SimplerFileSystem copyLocalFileToHDFS failed, filePath is:" + filePath, e);
 			return false;
 		}
 	}
@@ -241,12 +239,6 @@ public class HdfsCommonUtil {
 			logger.info("复制hdfs文件到本地文件系统发生异常！", e);
 			return false;
 		}
-	}
-
-	public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
-		// TODO Auto-generated method stub
-		
-		
 	}
 
 }

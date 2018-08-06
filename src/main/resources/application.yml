@@ -1,7 +1,6 @@
 spring:
   hadoop:
-    fsUri: hdfs://192.168.18.215:8020 # 10.255.80.80:8020
-    resourceManagerHost: 192.168.18.216
+    hadoop_home_dir: E:\open source\hadoop\hadoop-2.6.5
     customer:
       security:
         authMethod: SIMPLE # SIMPLE or KERBEROS
@@ -15,7 +14,13 @@ spring:
         krb5File: D:\keytab\krb5.conf
     config:
       user: hdfs
-      hadoop_home_dir: E:\open source\hadoop\hadoop-2.6.5
+      fs.defaultFS: hdfs://hps
+      dfs.nameservices: hps
+      dfs.ha.namenodes.hps: nn1,nn2
+      dfs.namenode.rpc-address.hps.nn1: 192.168.18.215:8020
+      dfs.namenode.rpc-address.hps.nn2: 192.168.18.216:8020
+      dfs.client.failover.proxy.provider.hps: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+
 
 # phoenix 数据源自定义配置  
 phoenix:
