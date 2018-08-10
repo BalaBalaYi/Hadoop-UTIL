@@ -1,4 +1,4 @@
-package com.cty.hadoop.security;
+package com.cty.hadoop.interaction.security;
 
 import java.io.File;
 import java.io.IOException;

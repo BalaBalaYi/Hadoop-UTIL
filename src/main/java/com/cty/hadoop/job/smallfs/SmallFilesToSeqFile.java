@@ -1,4 +1,4 @@
-package com.cty.hadoop.hdfs;
+package com.cty.hadoop.job.smallfs;
 
 import java.io.IOException;
 
@@ -18,11 +18,18 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-public class SmallFilesFS extends Configured implements Tool {
+/**
+ * 基于SequenceFile 的 smallFS实现：针对小文件进行归档处理
+ * 
+ * @author chentianyi
+ *
+ */
+public class SmallFilesToSeqFile extends Configured implements Tool {
 	
 	private static final String JOB_NAME = "smallFilesToSeqFile";
 	
 	static class SequenceFileMapper extends Mapper<NullWritable, BytesWritable, Text, BytesWritable> {
+		
 		private Text filename;
 
 		@Override
@@ -44,7 +51,7 @@ public class SmallFilesFS extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf);
-		job.setJarByClass(SmallFilesFS.class);
+		job.setJarByClass(SmallFilesToSeqFile.class);
 		job.setJobName(JOB_NAME);
 		job.setInputFormatClass(FullFileInputFormat.class);
 		job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -60,7 +67,7 @@ public class SmallFilesFS extends Configured implements Tool {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int exitCode = ToolRunner.run(new SmallFilesFS(), args);
+		int exitCode = ToolRunner.run(new SmallFilesToSeqFile(), args);
 		System.exit(exitCode);
 	}
 }

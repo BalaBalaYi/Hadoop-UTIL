@@ -1,4 +1,4 @@
-package com.cty.hadoop.source;
+package com.cty.hadoop.interaction.source;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,7 +16,7 @@ import org.springframework.data.hadoop.fs.SimplerFileSystem;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.cty.hadoop.security.HadoopSecurityUtil;
+import com.cty.hadoop.interaction.security.HadoopSecurityUtil;
 
 /**
  * phoenix 数据源配置

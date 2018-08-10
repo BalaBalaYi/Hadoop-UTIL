@@ -1,8 +1,12 @@
-package com.cty.hadoop.hdfs;
+package com.cty.hadoop.interaction.hdfs;
 
 import java.lang.reflect.Constructor;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.ByteWritable;
@@ -23,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.hadoop.fs.SimplerFileSystem;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,8 +40,8 @@ public class HdfsSequenceUtil {
 	private static final Logger logger = LoggerFactory.getLogger(HdfsSequenceUtil.class);
 	
 	@Autowired
-	@Qualifier("simplerFS")
-	private SimplerFileSystem fs;
+	@Qualifier("originalFS")
+	private FileSystem fs;
 	
 	/**
 	 * 根据序列化类型 Text，写入sequence file
@@ -46,17 +49,18 @@ public class HdfsSequenceUtil {
 	 * @param filePath 写入文件目标地址
 	 */
 	public boolean writeSeqFileWithTextType(Map<String, String> dataMap, String filePath) {
-		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
 		SequenceFile.Writer writer = null;
 		Writer.Option[] opts = {Writer.file(new Path(filePath)), SequenceFile.Writer.keyClass(Text.class), SequenceFile.Writer.valueClass(Text.class)};
 		
 		try {
-			writer = SequenceFile.createWriter(fs.getConf(), opts);
+			writer = SequenceFile.createWriter(fs.getConf(), opts);System.out.println("开始插入" + df.format(new Date()));
 			for (String key : dataMap.keySet()) {
 				writer.append(new Text(key), new Text(dataMap.get(key)));
 			}
+			System.out.println("结束插入" + df.format(new Date()));
 		} catch (Exception e) {
-			logger.error("写入sequence file 发生异常！", e);
+			logger.error("HdfsSequenceUtil writeSeqFileWithTextType error, filePath is " + filePath, e);
 			return false;
 		} finally {
 			IOUtils.closeStream(writer);
@@ -80,7 +84,7 @@ public class HdfsSequenceUtil {
 				writer.append(new ObjectWritable(key), new ObjectWritable(dataMap.get(key)));
 			}
 		} catch (Exception e) {
-			logger.error("写入sequence file 发生异常！", e);
+			logger.error("HdfsSequenceUtil writeSeqFileWithObjectType error, filePath is " + filePath, e);
 			return false;
 		} finally {
 			IOUtils.closeStream(writer);
@@ -125,7 +129,7 @@ public class HdfsSequenceUtil {
 				writer.append(keyWritableClazzConstructor.newInstance(key), valWritableClazzConstructor.newInstance(dataMap.get(key)));
 			}
 		} catch (Exception e) {
-			logger.error("写入sequence file 发生异常！", e);
+			logger.error("HdfsSequenceUtil writeSeqFileWithAutoSpecifiedType error, filePath is " + filePath, e);
 			return false;
 		} finally {
 			IOUtils.closeStream(writer);
@@ -153,7 +157,7 @@ public class HdfsSequenceUtil {
 				writer.append(keyClazz.getMethod("set", Object.class).invoke(key), valClazz.getMethod("set", Object.class).invoke(dataMap.get(key)));
 			}
 		} catch (Exception e) {
-			logger.error("写入sequence file 发生异常！", e);
+			logger.error("HdfsSequenceUtil writeSeqFileWithManualSpecifiedType error, filePath is " + filePath, e);
 			return false;
 		} finally {
 			IOUtils.closeStream(writer);
@@ -169,7 +173,7 @@ public class HdfsSequenceUtil {
 	@SuppressWarnings("null")
 	public Map<Object, Object> readSeqFile(String filePath) {
 		
-		Map<Object, Object> resultMap = null;
+		Map<Object, Object> resultMap = new HashMap<Object, Object>();
 		
 		SequenceFile.Reader reader = null;
 		Reader.Option[] opts = {Reader.file(new Path(filePath))};
@@ -183,7 +187,7 @@ public class HdfsSequenceUtil {
 				resultMap.put((Object) key, (Object) value);
 			}
 		} catch (Exception e) {
-			logger.error("读取sequence file 发生异常！", e);
+			logger.error("HdfsSequenceUtil readSeqFile error, filePath is " + filePath, e);
 			return null;
 		} finally {
 			IOUtils.closeStream(reader);

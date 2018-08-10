@@ -1,4 +1,4 @@
-package com.cty.hadoop.source;
+package com.cty.hadoop.interaction.source;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.hadoop.fs.SimplerFileSystem;
 
-import com.cty.hadoop.security.HadoopSecurityUtil;
+import com.cty.hadoop.interaction.security.HadoopSecurityUtil;
 import com.cty.hadoop.util.CommonUtil;
 
 /**
@@ -53,6 +53,7 @@ public class HdfsFileSystemSource {
 		
 			this.fs = ((fs != null) ? fs : FileSystem.get(URI.create(commonUtil.fixName(configuration.get("fs.defaultFS", "hdfs://hps/"))), configuration, user));
 		} else {
+			System.setProperty("HADOOP_USER_NAME", env.getProperty("spring.hadoop.config.user"));
 			this.fs = ((fs != null) ? fs : FileSystem.get(URI.create(commonUtil.fixName(configuration.get("fs.defaultFS", "hdfs://hps/"))), configuration, user));
 		}
 	}

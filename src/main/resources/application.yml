@@ -1,6 +1,47 @@
+server:
+  port: ${SERVER_PORT:8081}
+master1:
+  host: ${MASTER1_HOST:192.168.18.214}
+master2:
+  host: ${MASTER2_HOST:192.168.18.215}
+master3:
+  host: ${MASTER3_HOST:192.168.18.216}
+
+hadoop:
+  home: ${HADOOP_HOME:"E:\open source\hadoop\hadoop-2.6.5"}
+  hdfs:
+    nn:
+      port: ${NN_PORT:8020}
+  yarn:
+    cluster-id: ${YARN_CLUSTER-ID:yarn-cluster}
+    rm:
+      port: ${YARN_RESOURCEMANAGER_PORT:8032}
+      schedular:
+        port: ${YARN_SCHEDULAR_PORT:8030}
+      resource-tracker:
+        port: ${YARN_RESOURCE-TRACKER_PORT:8031}
+      admin:
+        port: ${YARN_ADMIN_PORT:8033}
+      webapp:
+        http.port: ${YARN_WEBAPP_HTTP_PORT:8088}
+        https.port: ${YARN_WEBAPP_HTTPS_PORT:8090}
+  hbase:
+    phoenix:
+      query-server:
+        port: ${PHOENIX_QUERY_SERVER_PORT:8765}
+  hive:
+    jdbc:
+      port: ${HIVE_JDBC_PORT:10000}
+  livy:
+    port: ${LIVY_PORT:8999}
+  zk:
+    port: ${ZK_PORT:2181}
+
 spring:
   hadoop:
-    hadoop_home_dir: E:\open source\hadoop\hadoop-2.6.5
+    resource-manager-host: ${master2.host}
+    resource-manager-port: ${hadoop.yarn.rm.port}
+    hadoop_home_dir: ${hadoop.home}
     customer:
       security:
         authMethod: SIMPLE # SIMPLE or KERBEROS
@@ -17,15 +58,38 @@ spring:
       fs.defaultFS: hdfs://hps
       dfs.nameservices: hps
       dfs.ha.namenodes.hps: nn1,nn2
-      dfs.namenode.rpc-address.hps.nn1: 192.168.18.215:8020
-      dfs.namenode.rpc-address.hps.nn2: 192.168.18.216:8020
+      dfs.namenode.rpc-address.hps.nn1: ${master2.host}:${hadoop.hdfs.nn.port}
+      dfs.namenode.rpc-address.hps.nn2: ${master3.host}:${hadoop.hdfs.nn.port}
       dfs.client.failover.proxy.provider.hps: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+      yarn.resourcemanager.ha.enabled: true
+      yarn.resourcemanager.ha.rm-ids: rm1,rm2
+      yarn.resourcemanager.cluster-id: ${hadoop.yarn.cluster-id}
+      yarn.resourcemanager.hostname.rm1: ${master2.host}
+      yarn.resourcemanager.scheduler.address.rm1: ${master2.host}:${hadoop.yarn.rm.scheduler.port}
+      yarn.resourcemanager.admin.address.rm1: ${master2.host}:${hadoop.yarn.rm.admin.port}
+      yarn.resourcemanager.webapp.address.rm1: ${master2.host}:${hadoop.yarn.rm.webapp.http.port}
+      yarn.resource.resource-tracker.address.rm1: ${master2.host}:${hadoop.yarn.rm.resource-tracker.port}
+      yarn.resourcemanager.hostname.rm2: ${master3.host}
+      yarn.resourcemanager.scheduler.address.rm2: ${master3.host}:${hadoop.yarn.rm.scheduler.port}
+      yarn.resourcemanager.admin.address.rm2: ${master3.host}:${hadoop.yarn.rm.admin.port}
+      yarn.resourcemanager.webapp.address.rm2: ${master3.host}:${hadoop.yarn.rm.webapp.http.port}
+      yarn.resource.resource-tracker.address.rm2: ${master3.host}:${hadoop.yarn.rm.resource-tracker.port}
+      yarn.resourcemanager.zk-address: ${master1.host}:${hadoop.zk.port},${master2.host}:${hadoop.zk.port},${master3.host}:${hadoop.zk.port}
+      yarn.resourcemanager.recovery.enabled: true
 
+# livy 配置
+livy:
+  url: http://${master1.host}:${hadoop.livy.port}
+  
+# hive 数据源自定义配置
+hive:
+  url: jdbc:hive2://${master3.host}:${hadoop.hive.jdbc.port}/default
+  type: com.alibaba.druid.pool.DruidDataSource
+  driver-class-name: org.apache.hive.jdbc.HiveDriver
 
 # phoenix 数据源自定义配置  
 phoenix:
-  enable: true
-  url: jdbc:phoenix:192.168.18.214,192.168.18.215,192.168.18.216:2181:/hbase # jdbc:phoenix:thin:url=http://192.168.18.214:8765;serialization=PROTOBUF
+  url: jdbc:phoenix:${master1.host},${master2.host},${master3.host}:${hadoop.zk.port}:/hbase # jdbc:phoenix:thin:url=http://${master1.host}:${hadoop.hbase.phoenix.query-server.port};serialization=PROTOBUF
   type: com.alibaba.druid.pool.DruidDataSource
   driver-class-name: org.apache.phoenix.jdbc.PhoenixDriver # org.apache.phoenix.queryserver.client.Driver
   default-auto-commit: true

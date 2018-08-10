@@ -1,7 +1,10 @@
-package com.cty.hadoop.hdfs;
+package com.cty.hadoop.interaction.hdfs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.IOUtils;
@@ -27,38 +30,43 @@ public class HdfsCommonUtil {
 	private SimplerFileSystem fs;
 	
 	/**
-	 * 以字符串形式写入文件
+	 * 以字符串形式追加写入文件
 	 * @param filePath 文件绝对路径
 	 * @param content String 类型的文件内容
 	 * @return
 	 */
-	public boolean writeFileWithString(String filePath, String content) {
-		return writeFileWithByte(filePath, content.getBytes());
+	public boolean appendFileWithString(String filePath, String content) {
+		return appendFileWithByte(filePath, content.getBytes());
 	}
 	
 	/**
-	 * 以字节数组形式写入文件
+	 * 以字节数组形式追加写入文件
 	 * @param filePath 文件绝对路径
 	 * @param content byte[] 类型的文件内容
 	 * @return
 	 */
-	public boolean writeFileWithByte(String filePath, byte[] content) {
+	public boolean appendFileWithByte(String filePath, byte[] content) {
 		
-		FSDataOutputStream outputStream = null;
-		try {
-			outputStream = fs.append(filePath, 4096);
-			outputStream.write(content);
-		} catch (Exception e) {
-			logger.error("SimplerFileSystem writeFileWithByte failed, filePath is:" + filePath + ",content is:" + content, e);
-			return false;
-		} finally {
+		if(checkFileExist(filePath)) {	
+			FSDataOutputStream outputStream = null;
 			try {
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+				outputStream = fs.append(filePath, 4096);
+				outputStream.write(content);
+			} catch (Exception e) {
+				logger.error("SimplerFileSystem appendFileWithByte failed, filePath is:" + filePath + ",content is:" + content, e);
+				return false;
+			} finally {
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
+			return true;
+		} else {
+			logger.error("SimplerFileSystem appendFileWithByte failed, file does not exsist, filePath is:" + filePath);
+			return false;
 		}
-		return true;
 	}
 	
 	/**
@@ -76,7 +84,7 @@ public class HdfsCommonUtil {
 			try {
 				inputStream = fs.open(filePath);
 				outputStream = new ByteArrayOutputStream(inputStream.available());
-				IOUtils.copyBytes(inputStream, outputStream, 4096);
+				IOUtils.copyBytes(inputStream, outputStream, 10240);
 				fileContent = outputStream.toByteArray();
 				return fileContent;
 			} catch (IOException e) {
@@ -108,7 +116,6 @@ public class HdfsCommonUtil {
 				while (inputStream.read(b) != -1) {
 					fileContent.append(new String(b));
 				}
-				
 				return fileContent.toString();
 			} catch (IOException e) {
 				logger.error("SimplerFileSystem readFileWithString failed, filePath is:" + filePath, e);
@@ -123,15 +130,15 @@ public class HdfsCommonUtil {
 	
 	/**
 	 * 检查文件或者目录是否存在
-	 * @param fileName
+	 * @param filePath
 	 * @return
 	 */
-	public boolean checkFileExist(String fileName) {
+	public boolean checkFileExist(String filePath) {
 		
 		try {
-			return fs.exists(fileName);
+			return fs.exists(filePath);
 		} catch (Exception e) {
-			logger.error("SimplerFileSystem checkFileExist failed, fileName is:" + fileName, e);
+			logger.error("SimplerFileSystem checkFileExist failed, filePath is:" + filePath, e);
 			return false;
 		}
 	}
@@ -189,17 +196,43 @@ public class HdfsCommonUtil {
 	}
 	
 	/**
-	 * 创建一个空文件
-	 * @param filePath 待创建文件的绝对路径
+	 * 以字符串内容创建文件
+	 * @param filePath
+	 * @param content
 	 * @return
 	 */
-	public boolean mkfile(String filePath) {
+	public boolean createFileWithString(String filePath, String content) {
+		return createFileWithByte(filePath, content.getBytes());
+	}
+	
+	
+	/**
+	 * 以字节内容创建文件
+	 * @param filePath 待创建文件的绝对路径
+	 * @param content 待创建文件的字节内容
+	 * @return
+	 */
+	public boolean createFileWithByte(String filePath, byte[] content) {
 		
-		try {
-			fs.create(filePath, true);
+		if(!checkFileExist(filePath)) {	
+			FSDataOutputStream outputStream = null;
+		
+			try {
+				outputStream = fs.create(filePath, true);
+				outputStream.write(content);
+			} catch (Exception e) {
+				logger.error("SimplerFileSystem createFileWithByte failed, filePath is:" + filePath + ",content is:" + content, e);
+				return false;
+			} finally {
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 			return true;
-		} catch (Exception e) {
-			logger.error("SimplerFileSystem mkfile failed, filePath is:" + filePath, e);
+		} else {
+			logger.error("SimplerFileSystem createFileWithByte failed, file already exsist, filePath is:" + filePath);
 			return false;
 		}
 	}

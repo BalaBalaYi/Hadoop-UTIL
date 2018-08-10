@@ -1,4 +1,4 @@
-package com.cty.hadoop.hdfs;
+package com.cty.hadoop.job.smallfs;
 
 import java.io.IOException;
 

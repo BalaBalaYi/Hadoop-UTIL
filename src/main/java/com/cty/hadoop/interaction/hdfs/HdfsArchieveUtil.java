@@ -1,4 +1,4 @@
-package com.cty.hadoop.hdfs;
+package com.cty.hadoop.interaction.hdfs;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
