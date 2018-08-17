@@ -1,7 +1,9 @@
 package com.cty.hadoop.interaction.hdfs;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -109,12 +111,16 @@ public class HdfsCommonUtil {
 		if(checkFileExist(filePath)) {
 			StringBuffer fileContent = new StringBuffer();;
 			FSDataInputStream inputStream = null;
+			BufferedReader bufferedReader = null;
 			
 			try {
 				inputStream = fs.open(filePath);
-				byte[] b = new byte[4096];
-				while (inputStream.read(b) != -1) {
-					fileContent.append(new String(b));
+				bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+				String line;
+				line = bufferedReader.readLine();
+				while (line != null) {
+					fileContent.append(line);
+					line = bufferedReader.readLine();
 				}
 				return fileContent.toString();
 			} catch (IOException e) {

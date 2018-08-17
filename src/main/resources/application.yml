@@ -36,12 +36,16 @@ hadoop:
     port: ${LIVY_PORT:8999}
   zk:
     port: ${ZK_PORT:2181}
+  ranger:
+    port: ${RANGER_PORT:6080}
 
 spring:
   hadoop:
     resource-manager-host: ${master2.host}
     resource-manager-port: ${hadoop.yarn.rm.port}
     hadoop_home_dir: ${hadoop.home}
+    ranger-host: ${master1.host}
+    ranger-port: ${hadoop.ranger.port}
     customer:
       security:
         authMethod: SIMPLE # SIMPLE or KERBEROS

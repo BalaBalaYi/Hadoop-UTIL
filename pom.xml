@@ -130,6 +130,12 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.apache.ranger</groupId>
+			<artifactId>ranger-plugins-common</artifactId>
+			<version>0.7.1</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>druid</artifactId>
 			<version>${druid.version}</version>

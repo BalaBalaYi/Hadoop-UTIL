@@ -49,6 +49,19 @@ public class CommonUtil {
 		} 
 	}
 	
+	public boolean stringContainOrNot(String str, String content) {
+		
+		if(null == str || null == content) {
+			logger.error("CommonUtil stringContainOrNot error: params are null.");
+			return false;
+		}
+		
+		if(-1 != str.indexOf(content)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	public static void main(String[] args) {
 		CommonUtil util = new CommonUtil();
