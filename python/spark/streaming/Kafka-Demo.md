@@ -6,8 +6,18 @@ from pyspark.streaming.kafka import KafkaUtils
 from pykafka import KafkaClient
 import msgpack
 
+
+# 定义广播变量结合
+def getParamDict(sparkContext):
+    if ('paramDict' not in globals()):
+        globals()['paramDict'] = sparkContext.broadcast({xxx,xxx})
+    return globals()['paramDict']
+    
+
 # 外部输出实现
-def output(rdd, topic):
+def output(rdd):
+ 
+    paramDict = getParamDict(rdd.context)
  
     def handler(partition):
         # 获取kafka或是外部持久化系统的连接
@@ -39,6 +49,9 @@ def functionToCreateContext(checkpointDirectory):
     ssc = StreamingContext(sc, 20)
     ssc.checkpoint(checkpointDirectory)
     
+    # 获取广播变量
+    paramDict = getParamDict(sc);
+    
     fetch_len = 1024 * 1024 * 40
     kafkaStreams = KafkaUtils.createDirectStream(ssc,
                                                  topic,
@@ -55,7 +68,7 @@ def functionToCreateContext(checkpointDirectory):
     #kafkaStreams.saveAsTextFiles('outputdir', 'txt') # saveAsHadoopFiles ...
        
     # 输出到外部系统（也可包含处理）
-    kafkaStreams.foreachRDD(output, topic)
+    kafkaStreams.foreachRDD(output)
     
     return ssc
 
